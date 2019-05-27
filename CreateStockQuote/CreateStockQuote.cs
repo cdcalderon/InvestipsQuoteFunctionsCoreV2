@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Microsoft.Azure.Documents.Client;
 using System.Linq;
+using YahooFinanceApi;
 
 namespace CreateStockQuote
 {
@@ -45,9 +46,26 @@ namespace CreateStockQuote
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
+            var quotes = await Yahoo.GetHistoricalAsync("AAPL", new DateTime(2018, 12, 1), DateTime.Now, Period.Daily);
+
+            var resultState = TicTacTec.TA.Library.Core.MovingAverage(
+                    0,
+                    closePrices.Length - 1,
+                    closePrices, period,
+                    Core.MAType.Ema,
+                    out var outBegIndex,
+                    out var outNbElement,
+                    outMovingAverages);
+
+
+
+
+
             return name != null
                 ? (ActionResult)new OkObjectResult($"Hello, {name}")
                 : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+
+
         }
     }
 
